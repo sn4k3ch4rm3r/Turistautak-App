@@ -26,6 +26,7 @@ dependencies:
 
   permission_handler: 8.1.2
   flutter_map: 0.13.1
+  map_elevation: 1.1.0
   flutter_map_location_marker: any
   file_picker: 3.0.3
   sqflite: 2.0.0

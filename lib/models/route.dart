@@ -1,11 +1,16 @@
-class Route {
+import 'package:gpx/gpx.dart';
+import 'package:map_elevation/map_elevation.dart';
+import 'package:latlong2/latlong.dart';
+
+class RouteModel {
   final String name;
   final double length;
   final int elevationGain;
   final int elevationLoss;
+  // ignore: non_constant_identifier_names
   final String GPXData;
 
-  Route(this.name, this.length, this.elevationGain, this.elevationLoss, this.GPXData);
+  RouteModel(this.name, this.length, this.elevationGain, this.elevationLoss, this.GPXData);
 
   Map<String, dynamic> toMap() {
     return  {
@@ -17,8 +22,28 @@ class Route {
     };
   }
 
+  List<LatLng> getPoints() {
+    List<LatLng> points = <LatLng>[];
+    Gpx gpx = GpxReader().fromString(GPXData);
+    var track = gpx.trks[0].trksegs[0].trkpts;
+    for (var pt in track) {
+      points.add(LatLng(pt.lat, pt.lon));
+    }
+    return points;
+  }
+
+  List<ElevationPoint> getElevationPoints() {
+    List<ElevationPoint> points = <ElevationPoint>[];
+    Gpx gpx = GpxReader().fromString(GPXData);
+    var track = gpx.trks[0].trksegs[0].trkpts;
+    for (var pt in track) {
+      points.add(ElevationPoint(pt.lat, pt.lon, pt.ele));
+    }
+    return points;
+  }
+
   @override
   String toString() {
-    return "$Route({name} | ${length} km)";
+    return "$RouteModel($name | $length km)";
   }
 }

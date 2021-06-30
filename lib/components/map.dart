@@ -10,7 +10,11 @@ class MyMap extends StatefulWidget {
   final CenterOnLocationUpdate centerOnLocationUpdate;
   final StreamController<double> centerCurrentLocationStreamController;
   final lostFocus;
-  MyMap({Key key, this.centerOnLocationUpdate, this.lostFocus, this.centerCurrentLocationStreamController}) : super(key: key);
+  final List<LatLng> points;
+  final LatLng hoverPoint;
+  final LatLngBounds bounds;
+  // ignore: avoid_init_to_null
+  MyMap({Key key, this.centerOnLocationUpdate = CenterOnLocationUpdate.never, this.lostFocus = null, this.centerCurrentLocationStreamController = null, this.points = const <LatLng>[], this.hoverPoint = null, this.bounds = null}) : super(key: key);
 
   @override
   _MyMapState createState() => _MyMapState();
@@ -31,14 +35,56 @@ class _MyMapState extends State<MyMap> {
 
   @override
   Widget build(BuildContext context) {
+    if(widget.hoverPoint != null && widget.hoverPoint is LatLng) {
+      _markers = [Marker(
+        point: widget.hoverPoint,
+        width: 8,
+        height: 8,
+        builder: (BuildContext context) => Container(
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      )];
+    }
+    var mapLayers = [
+      TileLayerOptions(
+        urlTemplate: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+        subdomains: ["a", "b", "c"],
+        tileFadeInDuration: 300,
+      ),
+      TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png",
+        backgroundColor: Colors.transparent,
+        subdomains: ["a", "b", "c"],
+        fastReplace: true,
+        tileFadeInDuration: 300,
+      ),
+      PolylineLayerOptions(
+        polylines: [
+          Polyline(
+            points: widget.points,
+            color: Color.fromARGB(230, 50, 100, 255),
+            strokeWidth: 3.0,
+          )
+        ]
+      ),
+      MarkerLayerOptions(markers: _markers),
+    ];
+    if(widget.centerCurrentLocationStreamController != null) {
+      mapLayers.add(LocationMarkerLayerOptions());
+    }
+
     return FlutterMap(
       options: MapOptions(
         center: LatLng(47, 19.5),
+        bounds: widget.bounds,
         zoom: 10,
         minZoom: 1,
         maxZoom: 17,
         interactiveFlags: InteractiveFlag.all -InteractiveFlag.rotate,
-        plugins: [
+        plugins: widget.centerCurrentLocationStreamController == null?[]:[
           LocationMarkerPlugin(
             centerCurrentLocationStream: widget.centerCurrentLocationStreamController.stream,
             centerOnLocationUpdate: widget.centerOnLocationUpdate,
@@ -48,27 +94,12 @@ class _MyMapState extends State<MyMap> {
         onTap: (point) {
         },
         onPositionChanged: (MapPosition position, bool hasGesture) {
-          if(hasGesture) {
+          if(hasGesture && widget.lostFocus != null) {
             widget.lostFocus();
           }
         }
       ),
-      layers: [
-        TileLayerOptions(
-          urlTemplate: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-          subdomains: ["a", "b", "c"],
-          tileFadeInDuration: 300,
-        ),
-        TileLayerOptions(
-          urlTemplate: "https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png",
-          backgroundColor: Colors.transparent,
-          subdomains: ["a", "b", "c"],
-          fastReplace: true,
-          tileFadeInDuration: 300,
-        ),
-        MarkerLayerOptions(markers: _markers),
-        LocationMarkerLayerOptions(),
-      ],
+      layers: mapLayers,
       mapController: _mapController,
     );
   }

@@ -14,7 +14,7 @@ class MyMap extends StatefulWidget {
   final LatLng hoverPoint;
   final LatLngBounds bounds;
   // ignore: avoid_init_to_null
-  MyMap({Key key, this.centerOnLocationUpdate = CenterOnLocationUpdate.never, this.lostFocus = null, this.centerCurrentLocationStreamController = null, this.points = const <LatLng>[], this.hoverPoint = null, this.bounds = null}) : super(key: key);
+  MyMap({Key key, this.centerOnLocationUpdate = CenterOnLocationUpdate.never, this.lostFocus, this.centerCurrentLocationStreamController, this.points = const <LatLng>[], this.hoverPoint, this.bounds}) : super(key: key);
 
   @override
   _MyMapState createState() => _MyMapState();

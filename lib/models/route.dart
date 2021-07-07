@@ -1,3 +1,4 @@
+import 'package:flutter_map/flutter_map.dart';
 import 'package:gpx/gpx.dart';
 import 'package:map_elevation/map_elevation.dart';
 import 'package:latlong2/latlong.dart';
@@ -42,8 +43,14 @@ class RouteModel {
     return points;
   }
 
+  LatLngBounds getBounds(double padding) {
+    LatLngBounds bounds = LatLngBounds.fromPoints(getPoints());
+    bounds.pad(0.1);
+    return bounds;
+  }
+
   @override
   String toString() {
-    return "$RouteModel($name | $length km)";
+    return "$RouteModel($name | $length m)";
   }
 }

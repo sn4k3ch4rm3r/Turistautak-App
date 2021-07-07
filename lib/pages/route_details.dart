@@ -5,6 +5,8 @@ import 'package:turistautak/components/map.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'mapview.dart';
+
 class RouteDetails extends StatefulWidget {
 
   final RouteModel route;
@@ -20,9 +22,6 @@ class _RouteDetailsState extends State<RouteDetails> {
 
   @override
   Widget build(BuildContext context) {
-    LatLngBounds bounds = LatLngBounds.fromPoints(widget.route.getPoints());
-    bounds.pad(0.1);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -36,7 +35,7 @@ class _RouteDetailsState extends State<RouteDetails> {
             child: MyMap(
               points: widget.route.getPoints(),
               hoverPoint: hoverPoint,
-              bounds: bounds,
+              bounds: widget.route.getBounds(0.1),
             ),
           ),
           Container(
@@ -71,7 +70,9 @@ class _RouteDetailsState extends State<RouteDetails> {
           Text('▲ ${widget.route.elevationGain} m / ▼ ${widget.route.elevationLoss} m'),
           ElevatedButton(
             child: Text('Indulás'),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MapView(route: widget.route)), (route) => false);
+            },
           )
         ],
       ),

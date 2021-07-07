@@ -3,8 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:turistautak/components/map.dart';
+import 'package:turistautak/models/route.dart';
 
 class MapView extends StatefulWidget {
+
+  final RouteModel route;
+
+  const MapView({this.route});
 
   @override
   _MapViewState createState() => _MapViewState();
@@ -31,28 +36,40 @@ class _MapViewState extends State<MapView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Térkép'),
+        title: Text(
+          widget.route == null ? 'Térkép' : widget.route.name
+        ),
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.timeline,
-              color: Colors.white,
+          if(widget.route == null) 
+            IconButton(
+              icon: Icon(
+                Icons.timeline,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/select_route');
+              },
             ),
-            onPressed: () {
-              Navigator.pushNamed(context, '/select_route');
-            },
-          ),
+          if(widget.route != null)
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/map');
+              },
+            )
         ],
       ),
       body: Container(
         child: MyMap(
-          centerOnLocationUpdate: isFocused ? CenterOnLocationUpdate.always : CenterOnLocationUpdate.first,
+          centerOnLocationUpdate: isFocused ? CenterOnLocationUpdate.always : widget.route == null ? CenterOnLocationUpdate.first : CenterOnLocationUpdate.never,
           centerCurrentLocationStreamController: centerCurrentLocationStreamController,
           lostFocus: () {
             setState(() {
               isFocused = false;
             });
           },
+          points: widget.route != null ? widget.route.getPoints() : [],
+          bounds: widget.route != null ? widget.route.getBounds(0.1) : null,
         ),
       ),
       floatingActionButton: FloatingActionButton(

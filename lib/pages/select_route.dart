@@ -67,32 +67,40 @@ class _SelectRouteState extends State<SelectRoute> {
             await FilePicker.platform.clearTemporaryFiles();
             FilePickerResult res = await FilePicker.platform.pickFiles();
             if(res != null) {
-              String name = res.files.single.name.split('.gpx')[0];
+              try {
+                String name = res.files.single.name.split('.gpx')[0];
 
-              String xml = await File(res.files.first.path).readAsString();
-              Gpx gpx = GpxReader().fromString(xml);
-              double elevGain = 0;
-              double elevLoss = 0;
-              double dist = 0;
+                String xml = await File(res.files.first.path).readAsString();
+                Gpx gpx = GpxReader().fromString(xml);
+                double elevGain = 0;
+                double elevLoss = 0;
+                double dist = 0;
 
-              var track = gpx.trks[0].trksegs[0].trkpts;
-              final Distance distance = Distance();
+                var track = gpx.trks[0].trksegs[0].trkpts;
+                final Distance distance = Distance();
 
-              for(int i = 1; i < track.length; i++) {
-                if (track[i-1].ele < track[i].ele){
-                  elevGain += track[i].ele - track[i-1].ele;
+                for(int i = 1; i < track.length; i++) {
+                  if (track[i-1].ele < track[i].ele){
+                    elevGain += track[i].ele - track[i-1].ele;
+                  }
+                  else {
+                    elevLoss += track[i-1].ele - track[i].ele;
+                  }
+                  dist += distance(
+                    LatLng(track[i-1].lat, track[i-1].lon),
+                    LatLng(track[i].lat, track[i].lon)
+                  );
                 }
-                else {
-                  elevLoss += track[i-1].ele - track[i].ele;
-                }
-                dist += distance(
-                  LatLng(track[i-1].lat, track[i-1].lon),
-                  LatLng(track[i].lat, track[i].lon)
+                print("${dist/1000} km ($elevGain m / $elevLoss m)");
+                RouteModel route = RouteModel(name, dist, elevGain.round(), elevLoss.round(), xml);
+                await DatabaseProvider.db.insertRoute(route);
+                setState(() => {});
+              }
+              catch (Exception){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Hibás fájl.'))
                 );
               }
-              print("${dist/1000} km ($elevGain m / $elevLoss m)");
-              RouteModel route = RouteModel(name, dist, elevGain.round(), elevLoss.round(), xml);
-              await DatabaseProvider.db.insertRoute(route);
             }
           }
         },

@@ -27,15 +27,7 @@ class _RouteDetailsState extends State<RouteDetails> {
       appBar: AppBar(
         title: Text(
           widget.route.name,
-          textScaleFactor: 0.8,
         ),
-        titleSpacing: 0,
-        actions: [
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.delete),
-          ),
-        ],
       ),
       body: Column(
         children: [

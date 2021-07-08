@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/mapview.dart';
 import 'package:turistautak/pages/select_route.dart';
+import 'package:turistautak/utils/database_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,16 +12,35 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: MapView(),
-      routes: {
-        '/map': (context) => MapView(),
-        '/select_route': (context) => SelectRoute(),
+    return FutureBuilder(
+      future: getOpenRoute(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if(snapshot.hasData || snapshot.hasError) {
+          return MaterialApp(
+            title: 'Túristautak',
+            theme: ThemeData(
+              primarySwatch: Colors.green,
+            ),
+            home: MapView(route: snapshot.data),
+            routes: {
+              '/map': (context) => MapView(),
+              '/select_route': (context) => SelectRoute(),
+            },
+          );
+        }
+        return Center(
+          child: CircularProgressIndicator()
+        );
       },
     );
+    
+  }
+
+  Future<dynamic> getOpenRoute() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String routeName = prefs.getString('CurrentRoute');
+    if(routeName == '')
+      return 'none';
+    return DatabaseProvider.db.getRoute(routeName);
   }
 }

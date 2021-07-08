@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/components/map.dart';
 import 'package:turistautak/models/route.dart';
 
@@ -53,7 +54,9 @@ class _MapViewState extends State<MapView> {
           if(widget.route != null)
             IconButton(
               icon: Icon(Icons.close),
-              onPressed: () {
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setString('CurrentRoute', '');
                 Navigator.pushReplacementNamed(context, '/map');
               },
             )

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:map_elevation/map_elevation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/components/map.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:latlong2/latlong.dart';
@@ -70,7 +70,9 @@ class _RouteDetailsState extends State<RouteDetails> {
           Text('▲ ${widget.route.elevationGain} m / ▼ ${widget.route.elevationLoss} m'),
           ElevatedButton(
             child: Text('Indulás'),
-            onPressed: () {
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setString('CurrentRoute', widget.route.name);
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MapView(route: widget.route)), (route) => false);
             },
           )

@@ -44,9 +44,28 @@ class DatabaseProvider {
     }
     List<RouteModel> routes = <RouteModel>[];
     for (Map map in res) {
-      RouteModel route = RouteModel(map['name'], map['length'], map['elevationGain'], map['elevationLoss'], map['GPXData']);
+      RouteModel route = mapToRoute(map);
       routes.add(route);
     }
     return routes;
+  }
+
+  Future<RouteModel> getRoute(String name) async {
+    final db = await database;
+    var res = await db.query(
+      'routes',
+      where: 'name = ?',
+      whereArgs: [name]
+    );
+
+    if(res != null) {
+      return mapToRoute(res[0]);
+    }
+    
+    return null;
+  }
+
+  RouteModel mapToRoute(Map map) {
+    return RouteModel(map['name'], map['length'], map['elevationGain'], map['elevationLoss'], map['GPXData']);
   }
 }

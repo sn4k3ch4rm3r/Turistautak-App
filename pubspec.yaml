@@ -30,6 +30,7 @@ dependencies:
   flutter_map_location_marker: any
   file_picker: 3.0.3
   sqflite: 2.0.0
+  shared_preferences: 2.0.6
   path: 1.8.0
   gpx: 2.1.0
   # The following adds the Cupertino Icons font to your application.

@@ -5,6 +5,7 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/components/map.dart';
 import 'package:turistautak/models/route.dart';
+import 'package:turistautak/pages/route_details.dart';
 
 class MapView extends StatefulWidget {
 
@@ -35,32 +36,44 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> actions = [];
+    if(widget.route == null) {
+      actions = [
+        IconButton(
+          icon: Icon(
+            Icons.timeline,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pushNamed(context, '/select_route');
+          },
+        ),
+      ];
+    }
+    else {
+      actions = [
+        IconButton(
+          icon: Icon(Icons.info_outline),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => RouteDetails(route: widget.route)));
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('CurrentRoute', '');
+            Navigator.pushReplacementNamed(context, '/map');
+          },
+        ),
+      ];
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.route == null ? 'Térkép' : widget.route.name
         ),
-        actions: [
-          if(widget.route == null) 
-            IconButton(
-              icon: Icon(
-                Icons.timeline,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/select_route');
-              },
-            ),
-          if(widget.route != null)
-            IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setString('CurrentRoute', '');
-                Navigator.pushReplacementNamed(context, '/map');
-              },
-            )
-        ],
+        actions: actions,
       ),
       body: Container(
         child: MyMap(

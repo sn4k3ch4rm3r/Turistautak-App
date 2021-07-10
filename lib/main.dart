@@ -16,12 +16,14 @@ class MyApp extends StatelessWidget {
       future: getOpenRoute(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if(snapshot.hasData || snapshot.hasError) {
+          RouteModel route = snapshot.data != 'none' ? snapshot.data : null; 
+
           return MaterialApp(
             title: 'Túristautak',
             theme: ThemeData(
               primarySwatch: Colors.green,
             ),
-            home: MapView(route: snapshot.data),
+            home: MapView(route: route),
             routes: {
               '/map': (context) => MapView(),
               '/select_route': (context) => SelectRoute(),

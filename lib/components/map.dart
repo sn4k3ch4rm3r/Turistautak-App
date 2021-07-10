@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 class MyMap extends StatefulWidget {
   final CenterOnLocationUpdate centerOnLocationUpdate;
@@ -48,11 +49,15 @@ class _MyMapState extends State<MyMap> {
         ),
       )];
     }
-    var mapLayers = [
+
+    StorageCachingTileProvider cachingTileProvider = StorageCachingTileProvider(cachedValidDuration: Duration(days: 15));
+
+    List<LayerOptions> mapLayers = [
       TileLayerOptions(
         urlTemplate: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
         subdomains: ["a", "b", "c"],
         tileFadeInDuration: 300,
+        tileProvider: cachingTileProvider,
       ),
       TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png",
@@ -60,6 +65,7 @@ class _MyMapState extends State<MyMap> {
         subdomains: ["a", "b", "c"],
         fastReplace: true,
         tileFadeInDuration: 300,
+        tileProvider: cachingTileProvider,
       ),
       PolylineLayerOptions(
         polylines: [

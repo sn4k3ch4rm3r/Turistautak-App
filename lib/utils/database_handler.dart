@@ -39,9 +39,7 @@ class DatabaseProvider {
   Future<List<RouteModel>> getRoutes() async {
     final db = await database;
     var res = await db.query('routes');
-    if (res.length == 0) {
-      return null;
-    }
+
     List<RouteModel> routes = <RouteModel>[];
     for (Map map in res) {
       RouteModel route = mapToRoute(map);
@@ -52,13 +50,13 @@ class DatabaseProvider {
 
   Future<RouteModel> getRoute(String name) async {
     final db = await database;
-    var res = await db.query(
+    List<Map<String, Object>> res = await db.query(
       'routes',
       where: 'name = ?',
       whereArgs: [name]
     );
 
-    if(res != null) {
+    if(res.length > 0) {
       return mapToRoute(res[0]);
     }
     

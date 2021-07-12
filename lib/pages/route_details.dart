@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/components/map.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:turistautak/utils/map_downloader.dart';
 
 import 'mapview.dart';
 
@@ -26,7 +27,16 @@ class _RouteDetailsState extends State<RouteDetails> {
       appBar: AppBar(
         title: Text(
           widget.route.name,
+          maxLines: 2,
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              MyMapDownloader.downloadRegion(widget.route.getBounds(0.1), [MyMap.markedTrailsOptions, MyMap.openTopoMapOptions], context: context);
+            },
+            icon: Icon(Icons.download),
+          ),
+        ],
       ),
       body: Column(
         children: [

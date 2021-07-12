@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/components/map.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/route_details.dart';
+import 'package:turistautak/utils/map_downloader.dart';
 
 class MapView extends StatefulWidget {
 
@@ -19,6 +21,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   bool isFocused = false;
+  LatLngBounds selectionBounds;
 
   StreamController<double> centerCurrentLocationStreamController;
   
@@ -36,6 +39,7 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
+
     List<Widget> actions = [];
     if(widget.route == null) {
       actions = [
@@ -46,6 +50,17 @@ class _MapViewState extends State<MapView> {
           ),
           onPressed: () {
             Navigator.pushNamed(context, '/select_route');
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.download),
+          onPressed: () {
+            if(selectionBounds != null) {
+              MyMapDownloader.downloadRegion(selectionBounds, [MyMap.openTopoMapOptions, MyMap.markedTrailsOptions], context: context);
+            }
+            else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Jelölj ki területet a letöltéshez!'),));
+            }
           },
         ),
       ];
@@ -62,16 +77,18 @@ class _MapViewState extends State<MapView> {
           icon: Icon(Icons.close),
           onPressed: () async {
             SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString('CurrentRoute', '');
+            await prefs.remove('CurrentRoute');
             Navigator.pushReplacementNamed(context, '/map');
           },
         ),
       ];
     }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.route == null ? 'Térkép' : widget.route.name
+          widget.route == null ? 'Térkép' : widget.route.name,
+          maxLines: 2,
         ),
         actions: actions,
       ),
@@ -79,13 +96,18 @@ class _MapViewState extends State<MapView> {
         child: MyMap(
           centerOnLocationUpdate: isFocused ? CenterOnLocationUpdate.always : widget.route == null ? CenterOnLocationUpdate.first : CenterOnLocationUpdate.never,
           centerCurrentLocationStreamController: centerCurrentLocationStreamController,
-          lostFocus: () {
+          onLostFocus: () {
             setState(() {
               isFocused = false;
             });
           },
+          onRegionSelected: (value) {
+            setState(() {
+              selectionBounds = value;
+            });
+          },
           points: widget.route != null ? widget.route.getPoints() : [],
-          bounds: widget.route != null ? widget.route.getBounds(0.1) : null,
+          bounds: widget.route?.getBounds(0.1),
         ),
       ),
       floatingActionButton: FloatingActionButton(

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/mapview.dart';
@@ -10,8 +13,11 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  static Directory baseDirectory;
+
   @override
   Widget build(BuildContext context) {
+    getBaseDirectory();
     return FutureBuilder(
       future: getOpenRoute(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -41,8 +47,12 @@ class MyApp extends StatelessWidget {
   Future<dynamic> getOpenRoute() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String routeName = prefs.getString('CurrentRoute');
-    if(routeName == '')
+    if(routeName == null)
       return 'none';
     return DatabaseProvider.db.getRoute(routeName);
+  }
+
+  Future<void> getBaseDirectory() async {
+    baseDirectory = await getApplicationDocumentsDirectory();
   }
 }

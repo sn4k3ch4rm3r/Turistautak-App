@@ -5,17 +5,35 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
+import 'package:turistautak/utils/caching_tile_provider.dart';
+import 'package:turistautak/utils/map_rectangle_selector.dart';
 
 class MyMap extends StatefulWidget {
   final CenterOnLocationUpdate centerOnLocationUpdate;
   final StreamController<double> centerCurrentLocationStreamController;
-  final lostFocus;
+  final onLostFocus;
+  final onRegionSelected;
   final List<LatLng> points;
   final LatLng hoverPoint;
   final LatLngBounds bounds;
+
+  static final  LayerOptions openTopoMapOptions = TileLayerOptions(
+    urlTemplate: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    subdomains: ["a", "b", "c"],
+    tileFadeInDuration: 300,
+    tileProvider: CachingTileProvider(),
+  );
+  static final LayerOptions markedTrailsOptions = TileLayerOptions(
+    urlTemplate: "https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png",
+    backgroundColor: Colors.transparent,
+    subdomains: ["a", "b", "c"],
+    fastReplace: true,
+    tileFadeInDuration: 300,
+    tileProvider: CachingTileProvider(),
+  );
+
   // ignore: avoid_init_to_null
-  MyMap({Key key, this.centerOnLocationUpdate = CenterOnLocationUpdate.never, this.lostFocus, this.centerCurrentLocationStreamController, this.points = const <LatLng>[], this.hoverPoint, this.bounds}) : super(key: key);
+  MyMap({Key key, this.centerOnLocationUpdate = CenterOnLocationUpdate.never, this.onLostFocus, this.centerCurrentLocationStreamController, this.points = const <LatLng>[], this.hoverPoint, this.bounds, this.onRegionSelected}) : super(key: key);
 
   @override
   _MyMapState createState() => _MyMapState();
@@ -23,16 +41,16 @@ class MyMap extends StatefulWidget {
 
 class _MyMapState extends State<MyMap> {
 
-
   MapController _mapController = MapController();
   List<Marker> _markers = [];
+  MapRectangleSelector rectangleSelector = MapRectangleSelector();
+  List<LatLng> selectedAreaPoints = [];
 
   @override
   void initState() {
     Permission.location.request();
     super.initState();
   }
- 
 
   @override
   Widget build(BuildContext context) {
@@ -50,23 +68,9 @@ class _MyMapState extends State<MyMap> {
       )];
     }
 
-    StorageCachingTileProvider cachingTileProvider = StorageCachingTileProvider(cachedValidDuration: Duration(days: 15));
-
     List<LayerOptions> mapLayers = [
-      TileLayerOptions(
-        urlTemplate: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-        subdomains: ["a", "b", "c"],
-        tileFadeInDuration: 300,
-        tileProvider: cachingTileProvider,
-      ),
-      TileLayerOptions(
-        urlTemplate: "https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png",
-        backgroundColor: Colors.transparent,
-        subdomains: ["a", "b", "c"],
-        fastReplace: true,
-        tileFadeInDuration: 300,
-        tileProvider: cachingTileProvider,
-      ),
+      MyMap.openTopoMapOptions,
+      MyMap.markedTrailsOptions,
       PolylineLayerOptions(
         polylines: [
           Polyline(
@@ -77,6 +81,16 @@ class _MyMapState extends State<MyMap> {
         ]
       ),
       MarkerLayerOptions(markers: _markers),
+      PolygonLayerOptions(
+        polygons: [
+          Polygon(
+            points: selectedAreaPoints,
+            borderColor: Colors.green,
+            borderStrokeWidth: 2,
+            color: Colors.green.withAlpha(100),
+          )
+        ]
+      ),
     ];
     if(widget.centerCurrentLocationStreamController != null) {
       mapLayers.add(LocationMarkerLayerOptions());
@@ -84,11 +98,18 @@ class _MyMapState extends State<MyMap> {
 
     return FlutterMap(
       options: MapOptions(
+        onLongPress: (LatLng point) {
+          rectangleSelector.handleTap(point);
+          setState(() {
+            selectedAreaPoints = rectangleSelector.getCorners();
+          });
+          widget.onRegionSelected(rectangleSelector.getBounds());
+        },
         center: LatLng(47, 19.5),
         bounds: widget.bounds,
         zoom: 10,
         minZoom: 1,
-        maxZoom: 17,
+        maxZoom: 16,
         interactiveFlags: InteractiveFlag.all -InteractiveFlag.rotate,
         plugins: widget.centerCurrentLocationStreamController == null?[]:[
           LocationMarkerPlugin(
@@ -100,8 +121,8 @@ class _MyMapState extends State<MyMap> {
         onTap: (point) {
         },
         onPositionChanged: (MapPosition position, bool hasGesture) {
-          if(hasGesture && widget.lostFocus != null) {
-            widget.lostFocus();
+          if(hasGesture && widget.onLostFocus != null) {
+            widget.onLostFocus();
           }
         }
       ),

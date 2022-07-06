@@ -1,58 +1,69 @@
-import 'dart:io';
-
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:turistautak/models/route.dart';
-import 'package:turistautak/pages/mapview.dart';
-import 'package:turistautak/pages/select_route.dart';
+import 'package:turistautak/shared/themes.dart';
+import 'package:turistautak/pages/main.dart';
 import 'package:turistautak/utils/database_handler.dart';
 
-void main() {
-  runApp(MyApp());
+import 'shared/map_layers.dart';
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent
+    )
+  );
+
+  FlutterMapTileCaching.initialise(await RootDirectory.normalCache);
+  
+  for(MapLayer layer in MapLayers.all) {
+    final StoreDirectory store = FlutterMapTileCaching.instance(layer.name);
+    if(!(await store.manage.readyAsync)){
+      await store.manage.createAsync();
+      await store.metadata.addAsync(key: 'sourceUrl', value: layer.name);
+      await store.metadata.addAsync(key: 'validDuration', value: '14');
+      await store.metadata.addAsync(key: 'behaviour', value: 'cacheFirst');
+      await store.metadata.addAsync(key: 'type', value: layer.overlay?'overlay':'base');
+    }
+  }
+
+
+
+  LocationPermission currentPermission = await Geolocator.checkPermission();
+  if(currentPermission == LocationPermission.denied) {
+    currentPermission = await Geolocator.requestPermission();
+  }
+
+  runApp(const Application());
 }
 
-class MyApp extends StatelessWidget {
-  static Directory baseDirectory;
+class Application extends StatelessWidget {
+  const Application({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    getBaseDirectory();
-    return FutureBuilder(
-      future: getOpenRoute(),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if(snapshot.hasData || snapshot.hasError) {
-          RouteModel route = snapshot.data != 'none' ? snapshot.data : null; 
-
-          return MaterialApp(
-            title: 'Túristautak',
-            theme: ThemeData(
-              primarySwatch: Colors.green,
-            ),
-            home: MapView(route: route),
-            routes: {
-              '/map': (context) => MapView(),
-              '/select_route': (context) => SelectRoute(),
-            },
-          );
-        }
-        return Center(
-          child: CircularProgressIndicator()
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) {
+        return MaterialApp(
+          title: 'Turistautak',
+          theme: Themes.lightTheme(lightDynamic),
+          darkTheme: Themes.darkTheme(darkDynamic),
+          home: const MainPage(),
         );
       },
     );
-    
   }
 
   Future<dynamic> getOpenRoute() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String routeName = prefs.getString('CurrentRoute');
+    String? routeName = prefs.getString('CurrentRoute');
     if(routeName == null)
       return 'none';
     return DatabaseProvider.db.getRoute(routeName);
-  }
-
-  Future<void> getBaseDirectory() async {
-    baseDirectory = await getApplicationDocumentsDirectory();
   }
 }

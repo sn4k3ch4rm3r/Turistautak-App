@@ -1,27 +1,30 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gpx/gpx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/route_details.dart';
+import 'package:turistautak/shared/components/loading_indicator.dart';
 import 'package:turistautak/utils/database_handler.dart';
 
-class SelectRoute extends StatefulWidget {
+class SelectRoutePage extends StatefulWidget {
+  const SelectRoutePage({Key? key}) : super(key: key);
+
   @override
-  _SelectRouteState createState() => _SelectRouteState();
+  _SelectRoutePageState createState() => _SelectRoutePageState();
 }
 
-class _SelectRouteState extends State<SelectRoute> {
+class _SelectRoutePageState extends State<SelectRoutePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Útvonalak'),
       ),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: FutureBuilder(
         future: DatabaseProvider.db.getRoutes(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -39,6 +42,7 @@ class _SelectRouteState extends State<SelectRoute> {
                     )
                   );
                 },
+                textColor: Theme.of(context).colorScheme.onBackground,
               );
               children.add(rtElement);
             }
@@ -47,30 +51,23 @@ class _SelectRouteState extends State<SelectRoute> {
             );
           }
           else {
-            return Center(
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: CircularProgressIndicator(),
-              ),
-            );
+            return LoadingIndicator(message: 'Útvonalak betöltése...');
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.folder),
+        label: Text('Megnyitás'),       
         onPressed: () async {
           var permission = Permission.storage.request();
           if(await permission.isGranted) {
             await FilePicker.platform.clearTemporaryFiles();
-            FilePickerResult res = await FilePicker.platform.pickFiles();
+            FilePickerResult? res = await FilePicker.platform.pickFiles();
             if(res != null) {
               try {
                 String name = res.files.single.name.split('.gpx')[0];
 
-                String xml = await File(res.files.first.path).readAsString();
+                String xml = await File(res.files.first.path!).readAsString();
                 Gpx gpx = GpxReader().fromString(xml);
                 double elevGain = 0;
                 double elevLoss = 0;
@@ -80,15 +77,15 @@ class _SelectRouteState extends State<SelectRoute> {
                 final Distance distance = Distance();
 
                 for(int i = 1; i < track.length; i++) {
-                  if (track[i-1].ele < track[i].ele){
-                    elevGain += track[i].ele - track[i-1].ele;
+                  if (track[i-1].ele! < track[i].ele!){
+                    elevGain += track[i].ele! - track[i-1].ele!;
                   }
                   else {
-                    elevLoss += track[i-1].ele - track[i].ele;
+                    elevLoss += track[i-1].ele! - track[i].ele!;
                   }
                   dist += distance(
-                    LatLng(track[i-1].lat, track[i-1].lon),
-                    LatLng(track[i].lat, track[i].lon)
+                    LatLng(track[i-1].lat!, track[i-1].lon!),
+                    LatLng(track[i].lat!, track[i].lon!)
                   );
                 }
                 print("${dist/1000} km ($elevGain m / $elevLoss m)");
@@ -96,7 +93,7 @@ class _SelectRouteState extends State<SelectRoute> {
                 await DatabaseProvider.db.insertRoute(route);
                 setState(() => {});
               }
-              catch (Exception){
+              catch (exception){
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Hibás fájl.'))
                 );

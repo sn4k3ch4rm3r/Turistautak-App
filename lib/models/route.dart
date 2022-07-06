@@ -28,7 +28,7 @@ class RouteModel {
     Gpx gpx = GpxReader().fromString(GPXData);
     var track = gpx.trks[0].trksegs[0].trkpts;
     for (var pt in track) {
-      points.add(LatLng(pt.lat, pt.lon));
+      points.add(LatLng(pt.lat!, pt.lon!));
     }
     return points;
   }
@@ -38,7 +38,7 @@ class RouteModel {
     Gpx gpx = GpxReader().fromString(GPXData);
     var track = gpx.trks[0].trksegs[0].trkpts;
     for (var pt in track) {
-      points.add(ElevationPoint(pt.lat, pt.lon, pt.ele));
+      points.add(ElevationPoint(pt.lat!, pt.lon!, pt.ele!));
     }
     return points;
   }

@@ -5,14 +5,14 @@ import 'package:turistautak/models/route.dart';
 class DatabaseProvider {
   DatabaseProvider._();
   static final DatabaseProvider db = DatabaseProvider._();
-  static Database _database;
+  static Database? _database;
 
   Future<Database> get database async {
     if(_database != null) {
-      return _database;
+      return _database!;
     }
     _database = await initDB();
-    return _database;
+    return _database!;
   }
 
   initDB() async {
@@ -48,9 +48,9 @@ class DatabaseProvider {
     return routes;
   }
 
-  Future<RouteModel> getRoute(String name) async {
+  Future<RouteModel?> getRoute(String name) async {
     final db = await database;
-    List<Map<String, Object>> res = await db.query(
+    List<Map<String, Object?>> res = await db.query(
       'routes',
       where: 'name = ?',
       whereArgs: [name]

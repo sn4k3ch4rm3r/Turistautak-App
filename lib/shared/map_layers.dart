@@ -6,17 +6,20 @@ class MapLayer {
   final String name;
   final String sourceUrl;
   final bool overlay;
+  late StoreDirectory cachingInstance;
   
-  const MapLayer({required this.name, required this.sourceUrl, required this.overlay});
+  MapLayer({required this.name, required this.sourceUrl, required this.overlay}) {
+    cachingInstance = FlutterMapTileCaching.instance(name);
+  }
 
-  TileLayerWidget getTileLayerWidget(ColorScheme colorScheme) {
+  TileLayerWidget getTileLayerWidget({BuildContext? context}) {
     return TileLayerWidget(
       options: TileLayerOptions(
         urlTemplate: sourceUrl,
         subdomains: ['a', 'b', 'c'],
         tileFadeInDuration: 300,
-        tileProvider: FlutterMapTileCaching.instance(name).getTileProvider(),
-        backgroundColor: overlay ? Colors.transparent : colorScheme.surfaceVariant,
+        tileProvider: cachingInstance.getTileProvider(),
+        backgroundColor: overlay ? Colors.transparent : context != null ? Theme.of(context).colorScheme.surfaceVariant : Colors.grey,
         fastReplace: overlay,
       ) 
     );
@@ -24,23 +27,23 @@ class MapLayer {
 }
 
 class MapLayers {
-  static const MapLayer openStreetMap = MapLayer(
+  static MapLayer openStreetMap = MapLayer(
     name: 'OpenStreetMap', 
     sourceUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
     overlay: false
   );
-  static const MapLayer openTopoMap = MapLayer(
+  static MapLayer openTopoMap = MapLayer(
     name: 'OpenTopoMap', 
     sourceUrl: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', 
     overlay: false
   );
-  static const MapLayer trails = MapLayer(
+  static MapLayer trails = MapLayer(
     name: 'Turistautak', 
     sourceUrl: 'https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png', 
     overlay: true
   );
 
-  static const List<MapLayer> all = [
+  static List<MapLayer> all = [
     openStreetMap,
     openTopoMap,
     trails,

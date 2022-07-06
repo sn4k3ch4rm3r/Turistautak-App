@@ -3,7 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:provider/provider.dart';
+import 'package:turistautak/pages/map/components/layer_selector.dart';
 import 'package:turistautak/shared/components/map.dart';
+import 'package:turistautak/shared/map_layers.dart';
+import 'package:turistautak/shared/sate/layer_provider.dart';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -35,16 +39,27 @@ class _MapViewState extends State<MapView> {
     return FutureBuilder<void>(
       future: mapController.onReady,
       builder: (context, snapshot) {
+        LayerProvider provider = context.watch<LayerProvider>();
+
+        List<Widget> layers = [
+          provider.baseLayer.getTileLayerWidget(context: context),
+          LocationMarkerLayerWidget(
+            plugin: LocationMarkerPlugin(
+              centerOnLocationUpdate: centerOnUpdate? CenterOnLocationUpdate.always : CenterOnLocationUpdate.once,
+              centerCurrentLocationStream: locationStream.stream,
+            ),
+          )
+        ];
+
+        if(provider.isActive(MapLayers.trails)){
+          layers.insert(1, MapLayers.trails.getTileLayerWidget());
+        }
+
         return Scaffold(
           appBar: AppBar(title: const Text('Térkép')),
           body: MapComponent(
             mapController: mapController,
-            locationMaker: LocationMarkerLayerWidget(
-              plugin: LocationMarkerPlugin(
-                centerOnLocationUpdate: centerOnUpdate? CenterOnLocationUpdate.always : CenterOnLocationUpdate.once,
-                centerCurrentLocationStream: locationStream.stream,
-              ),
-            ),
+            layers: layers,
             onMove: (MapPosition position) {
               setState(() {
                 centerOnUpdate = false;
@@ -75,7 +90,12 @@ class _MapViewState extends State<MapView> {
               ),
               const SizedBox(height: 10),
               FloatingActionButton(
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context, 
+                    builder: (_) => LayerSelector(),
+                  );
+                },
                 child: const Icon(Icons.layers_sharp),
               ),
             ],

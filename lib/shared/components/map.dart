@@ -1,28 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:turistautak/shared/map_layers.dart';
 
 class MapComponent extends StatelessWidget {
-  const MapComponent({Key? key, this.locationMaker, this.onMove, this.mapController}) : super(key: key);
+  MapComponent({Key? key, this.onMove, this.mapController, this.layers}) : super(key: key);
 
-  final LocationMarkerLayerWidget? locationMaker;
   final Function? onMove;
   final MapController? mapController;
-
-  List<Widget> getLayers(ColorScheme colorScheme) {
-    List<Widget> layers = [
-      MapLayers.openStreetMap.getTileLayerWidget(colorScheme),
-      MapLayers.trails.getTileLayerWidget(colorScheme),
-    ];
-
-    if(locationMaker != null) {
-      layers.add(locationMaker!);
-    }
-
-    return layers;
-  }
+  final List<Widget>? layers;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +26,7 @@ class MapComponent extends StatelessWidget {
           }
         }
       ),
-      children: getLayers(Theme.of(context).colorScheme),
+      children: layers ?? [MapLayers.openStreetMap.getTileLayerWidget()],
     );
   }
 }

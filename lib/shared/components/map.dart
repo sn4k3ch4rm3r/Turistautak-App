@@ -21,10 +21,10 @@ class MapComponent extends StatelessWidget {
         zoom: 14,
         interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
         onPositionChanged: (MapPosition position, bool hasGesture) {
-          if(hasGesture && onMove != null) {
-            onMove!(position);
+          if(onMove != null) {
+            onMove!(position, hasGesture);
           }
-        }
+        },
       ),
       children: layers ?? [MapLayers.openStreetMap.getTileLayerWidget()],
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:turistautak/pages/download/download.dart';
 import 'package:turistautak/pages/map/map_page.dart';
 import 'package:turistautak/pages/select_route.dart';
 
@@ -15,6 +16,7 @@ class _MainPageState extends State<MainPage> {
   static final List<Widget> _pages = [
     const MapPage(),
     const SelectRoutePage(),
+    const DownloadPage(),
   ];
 
   @override
@@ -34,7 +36,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        physics: _selectedPage == 0 ? const NeverScrollableScrollPhysics() : const PageScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (int index) => setState(() => _selectedPage = index),
         children: _pages,
       ),
@@ -60,6 +62,11 @@ class _MainPageState extends State<MainPage> {
             selectedIcon: Icon(Icons.route),
             label: 'Útvonalak',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.download_outlined),
+            selectedIcon: Icon(Icons.download),
+            label: 'Letöltés',
+          )
         ],
       ),
     );

@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:turistautak/pages/map/components/layer_selector.dart';
 import 'package:turistautak/shared/components/map.dart';
 import 'package:turistautak/shared/map_layers.dart';
-import 'package:turistautak/shared/sate/layer_provider.dart';
+import 'package:turistautak/shared/sate/map_data.dart';
 
 class MapView extends StatefulWidget {
   const MapView({Key? key}) : super(key: key);
@@ -18,6 +18,7 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   bool centerOnUpdate = true;
+  bool _pageLoaded = false;
   late StreamController<double?> locationStream;
   late final MapController mapController;
 
@@ -25,6 +26,9 @@ class _MapViewState extends State<MapView> {
   void initState() {
     mapController = MapController();
     locationStream = StreamController<double?>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pageLoaded = true;
+    });
     super.initState();
   }
 
@@ -39,7 +43,7 @@ class _MapViewState extends State<MapView> {
     return FutureBuilder<void>(
       future: mapController.onReady,
       builder: (context, snapshot) {
-        LayerProvider provider = context.watch<LayerProvider>();
+        MapDataProvider provider = context.watch<MapDataProvider>();
 
         List<Widget> layers = [
           provider.baseLayer.getTileLayerWidget(context: context),
@@ -60,10 +64,15 @@ class _MapViewState extends State<MapView> {
           body: MapComponent(
             mapController: mapController,
             layers: layers,
-            onMove: (MapPosition position) {
-              setState(() {
-                centerOnUpdate = false;
-              });
+            onMove: (MapPosition position, bool hasGesture) {
+              if(hasGesture){
+                setState(() {
+                  centerOnUpdate = false;
+                });
+              }
+              if(_pageLoaded){
+                context.read<MapDataProvider>().center = mapController.center;
+              }
             },
           ),
           floatingActionButton: Column(

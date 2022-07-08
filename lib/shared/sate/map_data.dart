@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:turistautak/shared/map_layers.dart';
 
-class LayerProvider extends ChangeNotifier {
+class MapDataProvider extends ChangeNotifier {
+  LatLng _center = LatLng(47, 19.5);
   MapLayer _baseLayer = MapLayers.openStreetMap;
   Map<MapLayer, bool> _active = {
     MapLayers.trails: true,
   };
+
+  LatLng get center => _center;
+  set center(LatLng value) {
+    _center = value;
+    notifyListeners();
+  }
 
   bool isActive(MapLayer layer) {
     if(_active.containsKey(layer)) {

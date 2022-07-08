@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:turistautak/shared/sate/layer_provider.dart';
+import 'package:turistautak/shared/sate/download.dart';
+import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/shared/themes.dart';
 import 'package:turistautak/pages/main.dart';
 import 'package:turistautak/utils/database_handler.dart';
@@ -36,7 +37,8 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (_) => LayerProvider()),
+      ChangeNotifierProvider(create: (_) => MapDataProvider()),
+      ChangeNotifierProvider(create: (_) => DownloadProvider()),
     ],
     child: const Application(),
   ));

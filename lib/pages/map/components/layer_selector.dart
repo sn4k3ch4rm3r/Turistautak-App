@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:turistautak/shared/map_layers.dart';
-import 'package:turistautak/shared/sate/layer_provider.dart';
+import 'package:turistautak/shared/sate/map_data.dart';
 
 class LayerSelector extends StatefulWidget {
   const LayerSelector({Key? key}) : super(key: key);
@@ -27,7 +27,7 @@ class _LayerSelectorState extends State<LayerSelector> {
   }
 
   Widget _layerWidget({required BuildContext context, required MapLayer layer}) {
-    LayerProvider provider = context.read<LayerProvider>();
+    MapDataProvider provider = context.read<MapDataProvider>();
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     bool selected = provider.baseLayer == layer || provider.isActive(layer);

@@ -50,7 +50,7 @@ class _LayerSelectorState extends State<LayerSelector> {
                 child: Container(
                   color: colorScheme.inverseSurface,
                   child: Image(
-                    image: layer.cachingInstance.manage.tileImage()!.image,
+                    image: Image.asset('assets/images/${layer.name}.png').image,
                     width: 65.0,
                     height: 65.0,
                   ),

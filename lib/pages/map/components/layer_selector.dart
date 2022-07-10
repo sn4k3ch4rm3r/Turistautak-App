@@ -48,9 +48,9 @@ class _LayerSelectorState extends State<LayerSelector> {
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
                 child: Container(
-                  color: colorScheme.inverseSurface,
+                  color: colorScheme.surfaceVariant,
                   child: Image(
-                    image: Image.asset('assets/images/${layer.name}.png').image,
+                    image: layer.image.image,
                     width: 65.0,
                     height: 65.0,
                   ),

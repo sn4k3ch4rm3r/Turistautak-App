@@ -79,6 +79,7 @@ class _MapViewState extends State<MapView> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               FloatingActionButton(
+                heroTag: 'btn_center',
                 onPressed: () {
                   if(!centerOnUpdate) {
                     setState(() {
@@ -99,6 +100,7 @@ class _MapViewState extends State<MapView> {
               ),
               const SizedBox(height: 10),
               FloatingActionButton(
+                heroTag: 'btn_layers',
                 onPressed: () {
                   showModalBottomSheet(
                     context: context, 

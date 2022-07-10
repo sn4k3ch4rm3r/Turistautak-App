@@ -6,7 +6,9 @@ import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:turistautak/pages/download/components/shape_selector.dart';
+import 'package:turistautak/pages/download_options.dart';
 import 'package:turistautak/shared/components/map.dart';
+import 'package:turistautak/shared/map_layers.dart';
 import 'package:turistautak/shared/sate/download.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/shared/vars/region_mode.dart';
@@ -89,6 +91,20 @@ class _DownloadPageState extends State<DownloadPage> {
             ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          downloadProvider.downloadProgress = MapLayers.openStreetMap.cachingInstance.download.startForeground(
+            region: downloadProvider.region!.toDownloadable(
+              1, 
+              17,
+              MapLayers.openStreetMap.getOptions(),
+            ),
+          ).asBroadcastStream();
+          Navigator.push(context, MaterialPageRoute(builder: ((context) => DownloadOptions())));
+        },
+        icon: Icon(Icons.download), 
+        label: Text('Letöltés')
+      ),
     );
   }
 
@@ -161,6 +177,13 @@ class _DownloadPageState extends State<DownloadPage> {
       _topLeft = _mapController.pointToLatLng(_customPointFromPoint(calculatedTopLeft));
       _bottomRight = _mapController.pointToLatLng(_customPointFromPoint(calculatedBottomRight));
     }
+
+    downloadProvider.region = downloadProvider.regionMode == RegionMode.circle
+      ? CircleRegion(_center!, _radius!)
+      : RectangleRegion(
+          LatLngBounds(_topLeft, _bottomRight),
+        );
+
     setState(() {});
   }
 

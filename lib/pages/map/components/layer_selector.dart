@@ -83,32 +83,29 @@ class _LayerSelectorState extends State<LayerSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _categoryTitle(context: context, text: 'Térkép típusa'),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 25.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _layerWidget(context: context, layer: MapLayers.openStreetMap),
-                _layerWidget(context: context, layer: MapLayers.openTopoMap),
-              ],
-            ),
-          ),
-          Divider(color: Theme.of(context).colorScheme.outline, height: 0),
-          _categoryTitle(context: context, text: 'Térkép részletei'),
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _categoryTitle(context: context, text: 'Térkép típusa'),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 25.0),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _layerWidget(context: context, layer: MapLayers.trails),
+              _layerWidget(context: context, layer: MapLayers.openStreetMap),
+              _layerWidget(context: context, layer: MapLayers.openTopoMap),
             ],
           ),
-        ],
-      ),
+        ),
+        Divider(color: Theme.of(context).colorScheme.outline, height: 0),
+        _categoryTitle(context: context, text: 'Térkép részletei'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _layerWidget(context: context, layer: MapLayers.trails),
+          ],
+        ),
+      ],
     );
   }
 }

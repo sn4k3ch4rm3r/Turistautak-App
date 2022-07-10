@@ -18,6 +18,9 @@ class LoadingIndicator extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
           ],
         ),

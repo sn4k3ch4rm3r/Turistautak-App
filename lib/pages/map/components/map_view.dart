@@ -102,6 +102,7 @@ class _MapViewState extends State<MapView> {
                 onPressed: () {
                   showModalBottomSheet(
                     context: context, 
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     builder: (_) => LayerSelector(),
                   );
                 },

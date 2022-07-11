@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:turistautak/pages/download/download.dart';
+import 'package:turistautak/pages/download/progress.dart';
 import 'package:turistautak/pages/map/map_page.dart';
 import 'package:turistautak/pages/select_route.dart';
+import 'package:turistautak/shared/sate/download.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -13,10 +16,14 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late PageController _pageController;
   int _selectedPage = 0;
-  static final List<Widget> _pages = [
+  final List<Widget> _pages = [
     const MapPage(),
     const SelectRoutePage(),
-    const DownloadPage(),
+    Consumer<DownloadProvider>(
+      builder: (context, provider, _) => provider.downloadProgress.length == 0
+        ? const DownloadPage()
+        : const DownloadProgressPage()
+    ),
   ];
 
   @override

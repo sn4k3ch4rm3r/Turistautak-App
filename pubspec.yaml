@@ -15,7 +15,7 @@ dependencies:
   flutter_map_location_marker: ^4.1.1
   flutter_map_tile_caching:
     git:
-      url: https://github.com/JaffaKetchup/flutter_map_tile_caching
+      url: https://github.com/sn4k3ch4rm3r/flutter_map_tile_caching
       ref: v5
   latlong2: ^0.8.1
   dynamic_color: ^1.4.0

@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:turistautak/pages/download/components/shape_selector.dart';
 import 'package:turistautak/pages/download_options.dart';
 import 'package:turistautak/shared/components/map.dart';
-import 'package:turistautak/shared/map_layers.dart';
 import 'package:turistautak/shared/sate/download.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/shared/vars/region_mode.dart';
@@ -92,16 +91,13 @@ class _DownloadPageState extends State<DownloadPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          downloadProvider.downloadProgress = MapLayers.openStreetMap.cachingInstance.download.startForeground(
-            region: downloadProvider.region!.toDownloadable(
-              1, 
-              17,
-              MapLayers.openStreetMap.getOptions(),
+        onPressed: downloadProvider.region == null
+          ? () {}
+          : () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: ((context) => DownloadOptions()),
             ),
-          ).asBroadcastStream();
-          Navigator.push(context, MaterialPageRoute(builder: ((context) => DownloadOptions())));
-        },
+          ).then((value) => _updateRegion()),
         icon: Icon(Icons.download), 
         label: Text('Letöltés')
       ),

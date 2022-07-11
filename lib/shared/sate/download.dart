@@ -4,9 +4,9 @@ import 'package:turistautak/shared/map_layers.dart';
 import 'package:turistautak/shared/vars/region_mode.dart';
 
 class DownloadProvider extends ChangeNotifier {
-  Stream<DownloadProgress>? _downloadProgress;
-  Stream<DownloadProgress>? get downloadProgress => _downloadProgress;
-  set downloadProgress(Stream<DownloadProgress>? newStream) {
+  Map<String, Stream<DownloadProgress>> _downloadProgress = {};
+  Map<String, Stream<DownloadProgress>> get downloadProgress => _downloadProgress;
+  set downloadProgress(Map<String, Stream<DownloadProgress>> newStream) {
     _downloadProgress = newStream;
     notifyListeners();
   }
@@ -45,4 +45,12 @@ class DownloadProvider extends ChangeNotifier {
     notifyListeners();
   }
   
+  void reset() {
+    downloadProgress = {};
+    zoomRange = RangeValues(1, 17);
+    regionMode = RegionMode.square;
+    for (var layer in MapLayers.all) {
+      selectedLayers[layer] = true;
+    }
+  }
 }

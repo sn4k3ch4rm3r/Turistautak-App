@@ -194,7 +194,7 @@ packages:
       name: flutter_local_notifications
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "9.6.1"
+    version: "9.7.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -228,8 +228,8 @@ packages:
     description:
       path: "."
       ref: v5
-      resolved-ref: "808e581cc1ad5995dd930e33671ccedcdef2bed6"
-      url: "https://github.com/JaffaKetchup/flutter_map_tile_caching"
+      resolved-ref: "24199cf06d6d2719bdfd214f0dbbe8c6ea9c7487"
+      url: "https://github.com/sn4k3ch4rm3r/flutter_map_tile_caching"
     source: git
     version: "5.0.0-dev.2"
   flutter_plugin_android_lifecycle:

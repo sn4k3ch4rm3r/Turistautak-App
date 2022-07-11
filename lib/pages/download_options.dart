@@ -185,7 +185,20 @@ class _DownloadOptionsState extends State<DownloadOptions> {
             Align(
               alignment: Alignment.bottomCenter,
               child: ElevatedButton(
-                onPressed: (){},
+                onPressed: () {
+                  for (var layer in provider.selectedLayers.entries) {
+                    if(layer.value) {
+                      provider.downloadProgress[layer.key.name] = layer.key.cachingInstance.download.startForeground(
+                        region: provider.region!.toDownloadable(
+                          provider.zoomRange.start.round(),
+                          provider.zoomRange.end.round(),
+                          layer.key.getOptions()  
+                        ),
+                      ).asBroadcastStream();
+                    }
+                  }
+                  Navigator.of(context).pop();
+                },
                 child: Text(
                   'Letöltés',
                 ),

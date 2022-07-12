@@ -4,11 +4,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:turistautak/shared/map_layers.dart';
 
 class MapComponent extends StatelessWidget {
-  MapComponent({Key? key, this.onMove, this.mapController, this.layers}) : super(key: key);
+  MapComponent({Key? key, this.onMove, this.mapController, this.layers, this.bounds}) : super(key: key);
 
   final Function? onMove;
   final MapController? mapController;
   final List<Widget>? layers;
+  final LatLngBounds? bounds;
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +20,7 @@ class MapComponent extends StatelessWidget {
         minZoom: 1,
         maxZoom: 17,
         zoom: 14,
+        bounds: bounds,
         interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
         onPositionChanged: (MapPosition position, bool hasGesture) {
           if(onMove != null) {

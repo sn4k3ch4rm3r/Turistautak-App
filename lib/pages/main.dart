@@ -16,15 +16,6 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late PageController _pageController;
   int _selectedPage = 0;
-  final List<Widget> _pages = [
-    const MapPage(),
-    const SelectRoutePage(),
-    Consumer<DownloadProvider>(
-      builder: (context, provider, _) => provider.downloadProgress.length == 0
-        ? const DownloadPage()
-        : const DownloadProgressPage()
-    ),
-  ];
 
   @override
   void initState() {
@@ -40,12 +31,30 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    const MapPage _mapPage = MapPage();
     return Scaffold(
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (int index) => setState(() => _selectedPage = index),
-        children: _pages,
+        children: [
+          _mapPage,
+          SelectRoutePage(
+            onSelected: () {
+              setState(() => _selectedPage = 0);
+              _pageController.animateToPage(
+                _selectedPage,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+              );
+            },
+          ),
+          Consumer<DownloadProvider>(
+            builder: (context, provider, _) => provider.downloadProgress.length == 0
+              ? const DownloadPage()
+              : const DownloadProgressPage()
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedPage,

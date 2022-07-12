@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:turistautak/models/route.dart';
 import 'package:turistautak/shared/map_layers.dart';
 
 class MapDataProvider extends ChangeNotifier {
@@ -31,4 +32,19 @@ class MapDataProvider extends ChangeNotifier {
     _baseLayer = layer;
     notifyListeners();
   }
+
+  RouteModel? _route;
+  RouteModel? get route => _route;
+  set route(RouteModel? route) {
+    _route = route;
+    notifyListeners();
+  }
+
+  LatLng? _hoverPoint;
+  LatLng? get hoverPoint => _hoverPoint;
+  set hoverPoint(LatLng? point) {
+    _hoverPoint = point;
+    notifyListeners();
+  }
+
 }

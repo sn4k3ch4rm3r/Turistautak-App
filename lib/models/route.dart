@@ -8,10 +8,9 @@ class RouteModel {
   final double length;
   final int elevationGain;
   final int elevationLoss;
-  // ignore: non_constant_identifier_names
-  final String GPXData;
+  final String gpxData;
 
-  RouteModel(this.name, this.length, this.elevationGain, this.elevationLoss, this.GPXData);
+  RouteModel(this.name, this.length, this.elevationGain, this.elevationLoss, this.gpxData);
 
   Map<String, dynamic> toMap() {
     return  {
@@ -19,13 +18,13 @@ class RouteModel {
       'length': length,
       'elevationGain': elevationGain,
       'elevationLoss': elevationLoss,
-      'GPXData': GPXData
+      'GPXData': gpxData
     };
   }
 
   List<LatLng> getPoints() {
     List<LatLng> points = <LatLng>[];
-    Gpx gpx = GpxReader().fromString(GPXData);
+    Gpx gpx = GpxReader().fromString(gpxData);
     var track = gpx.trks[0].trksegs[0].trkpts;
     for (var pt in track) {
       points.add(LatLng(pt.lat!, pt.lon!));
@@ -35,7 +34,7 @@ class RouteModel {
 
   List<ElevationPoint> getElevationPoints() {
     List<ElevationPoint> points = <ElevationPoint>[];
-    Gpx gpx = GpxReader().fromString(GPXData);
+    Gpx gpx = GpxReader().fromString(gpxData);
     var track = gpx.trks[0].trksegs[0].trkpts;
     for (var pt in track) {
       points.add(ElevationPoint(pt.lat!, pt.lon!, pt.ele!));
@@ -43,7 +42,7 @@ class RouteModel {
     return points;
   }
 
-  LatLngBounds getBounds(double padding) {
+  LatLngBounds getBounds() {
     LatLngBounds bounds = LatLngBounds.fromPoints(getPoints());
     bounds.pad(0.1);
     return bounds;

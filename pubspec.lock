@@ -364,9 +364,11 @@ packages:
   map_elevation:
     dependency: "direct main"
     description:
-      name: map_elevation
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "5adc9cba7da620402d232ed2f6c5614eb8ba029b"
+      url: "https://github.com/sn4k3ch4rm3r/map_elevation"
+    source: git
     version: "2.0.0"
   matcher:
     dependency: transitive
@@ -632,6 +634,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sliding_up_panel:
+    dependency: "direct main"
+    description:
+      name: sliding_up_panel
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0+1"
   source_span:
     dependency: transitive
     description:

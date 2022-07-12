@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:gpx/gpx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:turistautak/models/route.dart';
-import 'package:turistautak/pages/route_details.dart';
 import 'package:turistautak/shared/components/loading_indicator.dart';
+import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/utils/database_handler.dart';
 
 class SelectRoutePage extends StatefulWidget {
-  const SelectRoutePage({Key? key}) : super(key: key);
+  const SelectRoutePage({Key? key, required this.onSelected}) : super(key: key);
+
+  final Function onSelected;
 
   @override
   _SelectRoutePageState createState() => _SelectRoutePageState();
@@ -20,6 +23,7 @@ class SelectRoutePage extends StatefulWidget {
 class _SelectRoutePageState extends State<SelectRoutePage> {
   @override
   Widget build(BuildContext context) {
+    MapDataProvider provider = Provider.of<MapDataProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Text('Útvonalak'),
@@ -35,12 +39,8 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                 title: Text(route.name),
                 subtitle: Text('${round(route.length/1000, decimals: 2)} km - ${route.elevationGain} m / ${route.elevationLoss} m'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RouteDetails(route: route),
-                    )
-                  );
+                  provider.route = route;
+                  widget.onSelected();
                 },
                 textColor: Theme.of(context).colorScheme.onBackground,
               );

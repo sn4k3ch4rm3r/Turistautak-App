@@ -47,4 +47,6 @@ class MapDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Function startDownload = () {};
+
 }

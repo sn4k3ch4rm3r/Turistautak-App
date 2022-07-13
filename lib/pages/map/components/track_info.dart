@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
 import 'package:provider/provider.dart';
 import 'package:turistautak/models/route.dart';
+import 'package:turistautak/pages/download_options.dart';
+import 'package:turistautak/shared/sate/download.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 
 class TrackInfoPanel extends StatelessWidget {
@@ -54,7 +57,7 @@ class TrackInfoPanel extends StatelessWidget {
             height: 120,
             child: NotificationListener<ElevationHoverNotification>(
               onNotification: (ElevationHoverNotification notification) {
-                MapDataProvider provider = context.read<MapDataProvider>();
+                MapDataProvider provider = Provider.of<MapDataProvider>(context, listen: false);
                 if(notification.position != null) {
                   provider.hoverPoint = LatLng(notification.position!.latitude, notification.position!.longitude);
                 }
@@ -80,7 +83,18 @@ class TrackInfoPanel extends StatelessWidget {
               ),
               SizedBox(width: 15),
               OutlinedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  DownloadProvider downloadProvider = Provider.of<DownloadProvider>(context, listen: false);
+                  downloadProvider.region = RectangleRegion(route.getBounds());
+                  bool downloading = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DownloadOptions()
+                    )
+                  );
+                  if(downloading){
+                    provider.startDownload();
+                  }
+                },
                 child: Text('Letöltés')
               ),
             ],

@@ -5,6 +5,7 @@ import 'package:turistautak/pages/download/progress.dart';
 import 'package:turistautak/pages/map/map_page.dart';
 import 'package:turistautak/pages/select_route.dart';
 import 'package:turistautak/shared/sate/download.dart';
+import 'package:turistautak/shared/sate/map_data.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -15,11 +16,17 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   late PageController _pageController;
+  late MapDataProvider provider = Provider.of<MapDataProvider>(context, listen: false);
   int _selectedPage = 0;
 
   @override
   void initState() {
     _pageController = PageController(initialPage: _selectedPage);
+    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
+      provider.startDownload = () {
+        _goToPage(2);
+      };
+    });
     super.initState();
   }
 
@@ -40,14 +47,7 @@ class _MainPageState extends State<MainPage> {
         children: [
           _mapPage,
           SelectRoutePage(
-            onSelected: () {
-              setState(() => _selectedPage = 0);
-              _pageController.animateToPage(
-                _selectedPage,
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-              );
-            },
+            onSelected: () => _goToPage(0),
           ),
           Consumer<DownloadProvider>(
             builder: (context, provider, _) => provider.downloadProgress.length == 0
@@ -59,14 +59,7 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedPage,
         height: 65,
-        onDestinationSelected: (int index) {
-          setState(() => _selectedPage = index);
-          _pageController.animateToPage(
-            _selectedPage,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-          );  
-        },
+        onDestinationSelected: (int index) => _goToPage(index),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.map_outlined),
@@ -85,6 +78,15 @@ class _MainPageState extends State<MainPage> {
           )
         ],
       ),
+    );
+  }
+
+  void _goToPage(int index) {
+    setState(() => _selectedPage = index);
+    _pageController.animateToPage(
+      _selectedPage,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
     );
   }
 }

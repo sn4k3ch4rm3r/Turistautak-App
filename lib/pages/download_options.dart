@@ -197,7 +197,7 @@ class _DownloadOptionsState extends State<DownloadOptions> {
                       ).asBroadcastStream();
                     }
                   }
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
                 },
                 child: Text(
                   'Letöltés',

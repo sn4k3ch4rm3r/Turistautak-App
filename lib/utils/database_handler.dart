@@ -36,6 +36,15 @@ class DatabaseProvider {
     await db.insert('routes', route.toMap());
   }
 
+  deleteRoute(RouteModel route) async {
+    final db = await database;
+    await db.delete(
+      'routes',
+      where: 'name = ?',
+      whereArgs: [route.name]
+    );
+  }
+
   Future<List<RouteModel>> getRoutes() async {
     final db = await database;
     var res = await db.query('routes');

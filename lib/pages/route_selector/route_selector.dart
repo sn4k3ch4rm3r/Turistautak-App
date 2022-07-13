@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:turistautak/models/route.dart';
+import 'package:turistautak/pages/route_selector/componets/confirm_delete.dart';
 import 'package:turistautak/shared/components/loading_indicator.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/utils/database_handler.dart';
@@ -29,25 +30,30 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
         title: Text('Útvonalak'),
       ),
       backgroundColor: Theme.of(context).colorScheme.background,
-      body: FutureBuilder(
+      body: FutureBuilder<List<RouteModel>>(
         future: DatabaseProvider.db.getRoutes(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          List<Widget> children = <Widget>[];
           if(snapshot.hasData) {
-            for (RouteModel route in snapshot.data) {
-              ListTile rtElement = ListTile(
-                title: Text(route.name),
-                subtitle: Text('${round(route.length/1000, decimals: 2)} km - ${route.elevationGain} m / ${route.elevationLoss} m'),
-                onTap: () {
-                  provider.route = route;
-                  widget.onSelected();
-                },
-                textColor: Theme.of(context).colorScheme.onBackground,
-              );
-              children.add(rtElement);
-            }
-            return ListView(
-              children: children,
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) {
+                RouteModel route = snapshot.data[index];
+                return ListTile(
+                  title: Text(route.name),
+                  subtitle: Text('${round(route.length/1000, decimals: 2)} km - ${route.elevationGain} m / ${route.elevationLoss} m'),
+                  onTap: () {
+                    provider.route = route;
+                    widget.onSelected();
+                  },
+                  onLongPress: () async {
+                    if(await showDialog(context: context, builder: (context) => ConfirmDeleteDialog(routeName: route.name))) {
+                      await DatabaseProvider.db.deleteRoute(route);
+                      setState(() {});
+                    }
+                  },
+                  textColor: Theme.of(context).colorScheme.onBackground,
+                );
+              },
             );
           }
           else {

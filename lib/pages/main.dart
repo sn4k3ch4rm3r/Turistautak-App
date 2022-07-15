@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/download/download.dart';
 import 'package:turistautak/pages/download/progress.dart';
 import 'package:turistautak/pages/map/map_page.dart';
 import 'package:turistautak/pages/route_selector/route_selector.dart';
 import 'package:turistautak/shared/sate/download.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
+import 'package:turistautak/utils/database_handler.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -28,6 +31,7 @@ class _MainPageState extends State<MainPage> {
       };
     });
     super.initState();
+    _getOpenRoute().then((value) => provider.route = value);
   }
 
   @override
@@ -88,5 +92,12 @@ class _MainPageState extends State<MainPage> {
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
     );
+  }
+
+  Future<RouteModel?> _getOpenRoute() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? routeName = prefs.getString('CurrentRoute');
+    if (routeName == null) return null;
+    return DatabaseProvider.db.getRoute(routeName);
   }
 }

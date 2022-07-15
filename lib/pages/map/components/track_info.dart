@@ -3,6 +3,7 @@ import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/download_options.dart';
 import 'package:turistautak/shared/sate/download.dart';
@@ -76,8 +77,10 @@ class TrackInfoPanel extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   provider.route = null;
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('CurrentRoute');
                 }, 
                 child: Text('Befejezés')
               ),

@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/shared/sate/download.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/shared/themes.dart';
 import 'package:turistautak/pages/main.dart';
-import 'package:turistautak/utils/database_handler.dart';
 import 'package:turistautak/shared/map_layers.dart';
 import 'package:provider/provider.dart';
 
@@ -59,12 +57,5 @@ class Application extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<dynamic> getOpenRoute() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? routeName = prefs.getString('CurrentRoute');
-    if (routeName == null) return 'none';
-    return DatabaseProvider.db.getRoute(routeName);
   }
 }

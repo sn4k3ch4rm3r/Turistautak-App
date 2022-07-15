@@ -6,6 +6,7 @@ import 'package:gpx/gpx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/route_selector/componets/confirm_delete.dart';
 import 'package:turistautak/shared/components/loading_indicator.dart';
@@ -41,9 +42,11 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                 return ListTile(
                   title: Text(route.name),
                   subtitle: Text('${round(route.length/1000, decimals: 2)} km - ${route.elevationGain} m / ${route.elevationLoss} m'),
-                  onTap: () {
+                  onTap: () async {
                     provider.route = route;
                     widget.onSelected();
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setString('CurrentRoute', route.name);
                   },
                   onLongPress: () async {
                     if(await showDialog(context: context, builder: (context) => ConfirmDeleteDialog(routeName: route.name))) {

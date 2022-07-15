@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -34,8 +35,9 @@ class _MapViewState extends State<MapView> {
   void initState() {
     mapController = MapController();
     locationStream = StreamController<double?>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       provider.addListener(_changeListener);
+      await mapController.onReady;
       _pageLoaded = true;
     });
     super.initState();
@@ -50,87 +52,88 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<void>(
-      future: mapController.onReady,
-      builder: (context, snapshot) {
+    double panelHeightOpen = 290;
+    double panelHeightClosed = provider.route != null ? 85 : 0;
 
-        double panelHeightOpen = 290;
-        double panelHeightClosed = provider.route != null ? 85 : 0;
-
-        return Scaffold(
-          body: Stack(
-            children: [
-              SlidingUpPanel(
-                controller: panelController,
-                panelBuilder: (sc) => provider.route != null ? TrackInfoPanel(route: provider.route!) : Container(),
-                parallaxEnabled: true,
-                parallaxOffset: 0.6,
-                minHeight: panelHeightClosed,
-                maxHeight: panelHeightOpen,
-                color: Theme.of(context).colorScheme.surface,
-                body: MapComponent(
-                  mapController: mapController,
-                  layers: [
-                    provider.baseLayer.getTileLayerWidget(context: context),
-                      if(provider.isActive(MapLayers.trails))
-                        MapLayers.trails.getTileLayerWidget(),
-              
-                    if(true)
-                      PolylineLayerWidget(
-                        options: PolylineLayerOptions(
-                          polylines: [
-                            Polyline(
-                              points: provider.route?.getPoints() ?? [],
-                              color: Color.fromARGB(230, 50, 100, 255),
-                              strokeWidth: 3.0,
-                            )
-                          ]
-                        ),
-                      ),
-                    if(provider.hoverPoint != null)
-                      MarkerLayerWidget(
-                        options: MarkerLayerOptions(
-                          markers: [
-                            Marker(
-                              point: provider.hoverPoint!,
-                              width: 10,
-                              height: 10,
-                              builder: (BuildContext context) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          SlidingUpPanel(
+            controller: panelController,
+            panelBuilder: (sc) => provider.route != null ? TrackInfoPanel(route: provider.route!) : Container(),
+            parallaxEnabled: true,
+            parallaxOffset: 0.6,
+            minHeight: panelHeightClosed,
+            maxHeight: panelHeightOpen,
+            color: Theme.of(context).colorScheme.surface,
+            body: MapComponent(
+              mapController: mapController,
+              layers: [
+                provider.baseLayer.getTileLayerWidget(context: context),
+                  if(provider.isActive(MapLayers.trails))
+                    MapLayers.trails.getTileLayerWidget(),
+          
+                if(true)
+                  PolylineLayerWidget(
+                    options: PolylineLayerOptions(
+                      polylines: [
+                        Polyline(
+                          points: provider.route?.getPoints() ?? [],
+                          color: Color.fromARGB(230, 50, 100, 255),
+                          strokeWidth: 3.0,
+                        )
+                      ]
+                    ),
+                  ),
+                if(provider.hoverPoint != null)
+                  MarkerLayerWidget(
+                    options: MarkerLayerOptions(
+                      markers: [
+                        Marker(
+                          point: provider.hoverPoint!,
+                          width: 10,
+                          height: 10,
+                          builder: (BuildContext context) => Container(
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ]
+                          ),
                         ),
-                      ),
-                    LocationMarkerLayerWidget(
-                      plugin: LocationMarkerPlugin(
-                        centerOnLocationUpdate: centerOnUpdate? CenterOnLocationUpdate.always : CenterOnLocationUpdate.never,
-                        centerCurrentLocationStream: locationStream.stream,
-                      ),
-                    )
-                  ],
-                  onMove: (MapPosition position, bool hasGesture) {
-                    if(hasGesture){
-                      setState(() {
-                        centerOnUpdate = false;
-                      });
-                    }
-                    if(_pageLoaded){
-                      context.read<MapDataProvider>().center = mapController.center;
-                    }
-                  },
-                ),
-                onPanelSlide: (position) => setState(() {
-                  _fabHeight = (panelHeightOpen - panelHeightClosed) * position + 15;
-                }),
-              ),
-              Positioned(
-                right: 15,
-                bottom: _fabHeight + panelHeightClosed,
-                child: Column(
+                      ]
+                    ),
+                  ),
+                LocationMarkerLayerWidget(
+                  plugin: LocationMarkerPlugin(
+                    centerOnLocationUpdate: centerOnUpdate? CenterOnLocationUpdate.always : CenterOnLocationUpdate.never,
+                    centerCurrentLocationStream: locationStream.stream,
+                  ),
+                )
+              ],
+              onMove: (MapPosition position, bool hasGesture) {
+                if(hasGesture){
+                  setState(() {
+                    centerOnUpdate = false;
+                  });
+                }
+                if(_pageLoaded){
+                  context.read<MapDataProvider>().center = mapController.center;
+                }
+              },
+            ),
+            onPanelSlide: (position) => setState(() {
+              _fabHeight = (panelHeightOpen - panelHeightClosed) * position + 15;
+            }),
+          ),
+          Positioned(
+            right: 15,
+            bottom: _fabHeight + panelHeightClosed,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if(_pageLoaded) _mapScale(),
+                SizedBox(width: 15),
+                Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     FloatingActionButton(
@@ -167,11 +170,57 @@ class _MapViewState extends State<MapView> {
                     ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
+    );
+  }
+
+  List<int> scaleBreakpoints = [
+    1000000,
+    500000,
+    200000,
+    100000,
+    50000,
+    20000,
+    10000,
+    5000,
+    2000,
+    1000,
+    500,
+    200,
+    100,
+    50,
+    20
+  ];
+  Widget _mapScale() {
+    double metersPerPx = 156543.03392 * cos(mapController.center.latitude * pi / 180) / pow(2, mapController.zoom);
+    int scale = scaleBreakpoints.firstWhere((x) => x / metersPerPx < 150);
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        Container(
+          width: scale / metersPerPx,
+          height: 10,
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.black,
+                width: 2,
+              ),
+              left: BorderSide(
+                color: Colors.black,
+                width: 2,
+              )
+            )
+          ),
+        ),
+        Text(
+          '${scale>=1000?scale~/1000:scale} ${scale>=1000?'km':'m'}',
+        ),
+      ],
     );
   }
 

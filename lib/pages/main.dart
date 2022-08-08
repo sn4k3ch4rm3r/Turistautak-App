@@ -6,6 +6,7 @@ import 'package:turistautak/pages/download/download.dart';
 import 'package:turistautak/pages/download/progress.dart';
 import 'package:turistautak/pages/map/map_page.dart';
 import 'package:turistautak/pages/route_selector/route_selector.dart';
+import 'package:turistautak/shared/map_layers.dart';
 import 'package:turistautak/shared/sate/download.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/utils/database_handler.dart';

@@ -8,6 +8,7 @@ class MapDataProvider extends ChangeNotifier {
   TileMapLayer _baseLayer = MapLayers.openStreetMap;
   Map<MapLayer, bool> _active = {
     MapLayers.trails: true,
+    MapLayers.route: true,
   };
 
   LatLng get center => _center;

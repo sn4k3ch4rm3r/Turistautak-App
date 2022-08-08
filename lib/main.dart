@@ -17,7 +17,7 @@ void main() async {
 
   FlutterMapTileCaching.initialise(await RootDirectory.normalCache);
 
-  for (MapLayer layer in MapLayers.all) {
+  for (MapLayer layer in MapLayers.allTileLayers) {
     final StoreDirectory store = FlutterMapTileCaching.instance(layer.name);
     if (!(await store.manage.readyAsync)) {
       await store.manage.createAsync();

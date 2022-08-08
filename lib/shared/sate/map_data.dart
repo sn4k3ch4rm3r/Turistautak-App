@@ -5,7 +5,7 @@ import 'package:turistautak/shared/map_layers.dart';
 
 class MapDataProvider extends ChangeNotifier {
   LatLng _center = LatLng(47, 19.5);
-  MapLayer _baseLayer = MapLayers.openStreetMap;
+  TileMapLayer _baseLayer = MapLayers.openStreetMap;
   Map<MapLayer, bool> _active = {
     MapLayers.trails: true,
   };
@@ -27,8 +27,8 @@ class MapDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  MapLayer get baseLayer => _baseLayer;
-  set baseLayer(MapLayer layer) {
+  TileMapLayer get baseLayer => _baseLayer;
+  set baseLayer(TileMapLayer layer) {
     _baseLayer = layer;
     notifyListeners();
   }

@@ -73,7 +73,7 @@ class _MapViewState extends State<MapView> {
                   if(provider.isActive(MapLayers.trails))
                     MapLayers.trails.getTileLayerWidget(),
           
-                if(true)
+                if(provider.isActive(MapLayers.route))
                   PolylineLayerWidget(
                     options: PolylineLayerOptions(
                       polylines: [

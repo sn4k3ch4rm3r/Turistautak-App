@@ -134,11 +134,11 @@ class _DownloadOptionsState extends State<DownloadOptions> {
                       ),
                     ),
                     ListView.separated(
-                      itemCount: MapLayers.all.length,
+                      itemCount: MapLayers.allTileLayers.length,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemBuilder: (context, i) {
-                        MapLayer layer = MapLayers.all[i];
+                        TileMapLayer layer = MapLayers.allTileLayers[i];
                         return ListTile(
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(5),

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:turistautak/models/route.dart';
 import 'package:turistautak/pages/route_selector/componets/confirm_delete.dart';
 import 'package:turistautak/shared/components/loading_indicator.dart';
+import 'package:turistautak/shared/map_layers.dart';
 import 'package:turistautak/shared/sate/map_data.dart';
 import 'package:turistautak/utils/database_handler.dart';
 
@@ -44,6 +45,7 @@ class _SelectRoutePageState extends State<SelectRoutePage> {
                   subtitle: Text('${round(route.length/1000, decimals: 2)} km - ${route.elevationGain} m / ${route.elevationLoss} m'),
                   onTap: () async {
                     provider.route = route;
+                    provider.setLayer(MapLayers.route, true);
                     widget.onSelected();
                     SharedPreferences prefs = await SharedPreferences.getInstance();
                     await prefs.setString('CurrentRoute', route.name);

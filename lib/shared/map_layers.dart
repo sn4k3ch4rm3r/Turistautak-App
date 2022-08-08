@@ -4,8 +4,22 @@ import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 class MapLayer {
   final String name;
-  final String sourceUrl;
   final bool overlay;
+
+  MapLayer({required this.name, this.overlay = true});
+
+  Image get image {
+    return Image.asset('assets/images/$name.png');
+  }
+  
+  @override
+  String toString() {
+    return 'MapLayer<$name>';
+  }
+}
+
+class TileMapLayer extends MapLayer{
+  final String sourceUrl;
   late StoreDirectory cachingInstance;
   TileLayerOptions getOptions({BuildContext? context}) {
     return TileLayerOptions(
@@ -17,17 +31,8 @@ class MapLayer {
       fastReplace: overlay,
     );
   } 
-  Image get image {
-    return Image.asset('assets/images/$name.png');
-  }
-  
-  @override
-  String toString() {
-    return 'MapLayer<$name>';
-  }
 
-
-  MapLayer({required this.name, required this.sourceUrl, required this.overlay}) {
+  TileMapLayer({required super.name, required this.sourceUrl, required super.overlay}) {
     cachingInstance = FlutterMapTileCaching.instance(name);
   }
 
@@ -39,23 +44,25 @@ class MapLayer {
 }
 
 class MapLayers {
-  static MapLayer openStreetMap = MapLayer(
+  static TileMapLayer openStreetMap = TileMapLayer(
     name: 'OpenStreetMap', 
     sourceUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
     overlay: false
   );
-  static MapLayer openTopoMap = MapLayer(
+  static TileMapLayer openTopoMap = TileMapLayer(
     name: 'OpenTopoMap', 
     sourceUrl: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', 
     overlay: false
   );
-  static MapLayer trails = MapLayer(
+  static TileMapLayer trails = TileMapLayer(
     name: 'Turistautak', 
     sourceUrl: 'https://{s}.tile.openstreetmap.hu/tt/{z}/{x}/{y}.png', 
     overlay: true
   );
 
-  static List<MapLayer> all = [
+  static MapLayer route = MapLayer(name: 'Útvonal');
+
+  static List<TileMapLayer> allTileLayers = [
     openStreetMap,
     openTopoMap,
     trails,

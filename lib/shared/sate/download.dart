@@ -25,13 +25,13 @@ class DownloadProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Map<MapLayer, bool> _selectedLayers = {
+  Map<TileMapLayer, bool> _selectedLayers = {
     MapLayers.openStreetMap: true,
     MapLayers.openTopoMap: true,
     MapLayers.trails: true,
   };
-  Map<MapLayer, bool> get selectedLayers => _selectedLayers;
-  bool isSelected(MapLayer layer) {
+  Map<TileMapLayer, bool> get selectedLayers => _selectedLayers;
+  bool isSelected(TileMapLayer layer) {
     if(_selectedLayers.containsKey(layer)) {
       return _selectedLayers[layer]!;
     }
@@ -49,7 +49,7 @@ class DownloadProvider extends ChangeNotifier {
     downloadProgress = {};
     zoomRange = RangeValues(1, 17);
     regionMode = RegionMode.square;
-    for (var layer in MapLayers.all) {
+    for (var layer in MapLayers.allTileLayers) {
       selectedLayers[layer] = true;
     }
   }

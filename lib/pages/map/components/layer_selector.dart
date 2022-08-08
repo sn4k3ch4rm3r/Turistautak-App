@@ -11,6 +11,7 @@ class LayerSelector extends StatefulWidget {
 }
 
 class _LayerSelectorState extends State<LayerSelector> {
+  late MapDataProvider provider = Provider.of<MapDataProvider>(context);
 
   Widget _categoryTitle ({required BuildContext context, required String text}) {
     return Padding(
@@ -27,7 +28,6 @@ class _LayerSelectorState extends State<LayerSelector> {
   }
 
   Widget _layerWidget({required BuildContext context, required MapLayer layer}) {
-    MapDataProvider provider = context.read<MapDataProvider>();
     ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     bool selected = provider.baseLayer == layer || provider.isActive(layer);
@@ -74,7 +74,7 @@ class _LayerSelectorState extends State<LayerSelector> {
           );
         }
         else {
-          provider.baseLayer = layer;
+          provider.baseLayer = layer as TileMapLayer;
         }
         setState(() {});
       },
@@ -103,6 +103,8 @@ class _LayerSelectorState extends State<LayerSelector> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _layerWidget(context: context, layer: MapLayers.trails),
+            if(provider.route != null)
+              _layerWidget(context: context, layer: MapLayers.route),
           ],
         ),
       ],
